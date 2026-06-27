@@ -1,0 +1,4 @@
+interface:
+  display_name: "OrCAD Schematic Check"
+  short_description: "Check and safely batch-fix OrCAD DSN files"
+  default_prompt: "Use $orcad-schematic-check to inspect and safely batch-fix an OrCAD/Capture DSN schematic."
