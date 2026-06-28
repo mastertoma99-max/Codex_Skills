@@ -1,4 +1,4 @@
 interface:
   display_name: "System Block Diagram"
-  short_description: "Draw schematic-style system block diagrams"
-  default_prompt: "Use $system-block-diagram to draw a schematic-style system block diagram from the current design files."
+  short_description: "Draw editable draw.io system block diagrams"
+  default_prompt: "Use $system-block-diagram to draw an editable draw.io system block diagram from the current design files."

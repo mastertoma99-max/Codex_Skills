@@ -5,6 +5,8 @@ These rules are user-maintained. Add project or personal drawing preferences her
 ## Current Preferences
 
 - Preserve every iteration. Create the next version suffix instead of overwriting existing SVG/PNG files.
+- Use `.drawio` as the primary editable output. Use native draw.io shapes, connectors, and text rather than embedding a bitmap preview.
+- Export matching SVG/PNG previews when tools are available.
 - Use a black schematic-style canvas with white frame, centered SoC, yellow functional blocks, blue high-speed buses, white control/clock/GPIO lines, cyan PWM/control lines, purple audio, and red power.
 - Keep the main title and source note. Do not add a decorative right-top `Block Diagram` subtitle.
 - Keep the left-bottom legend when it helps readability.
@@ -16,6 +18,7 @@ These rules are user-maintained. Add project or personal drawing preferences her
 - Ensure arrows do not touch labels, module borders, unrelated lines, or other arrowheads.
 - Keep arrowheads away from bends; leave a short straight segment before the arrowhead.
 - Route lines orthogonally and avoid passing through functional blocks.
+- Do not use diagonal signal or connector segments. All nets should be routed with horizontal/vertical orthogonal segments only.
 - When unrelated nets cross, add a compact semi-circular bridge on one net to show no electrical connection.
 - Keep bridge arcs compact. The current preferred bridge size is about 18 px outward with about 18 px vertical span.
 - Separate parallel trunks and stagger labels for similar nets so they cannot be mistaken as one net.

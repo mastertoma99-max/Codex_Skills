@@ -7,7 +7,7 @@ description: Draw schematic-style system block diagrams from electronics design 
 
 ## Overview
 
-Create editable SVG system block diagrams, usually with an exported PNG, from available electronics design materials. Prioritize correct system relationships, readable engineering presentation, and versioned iteration.
+Create editable draw.io (`.drawio`) system block diagrams from available electronics design materials, with SVG/PNG preview exports when available. Prioritize correct system relationships, human-editable objects, readable engineering presentation, and versioned iteration.
 
 ## Workflow
 
@@ -18,7 +18,7 @@ Create editable SVG system block diagrams, usually with an exported PNG, from av
    - Use screenshots only for visual style or sanity checks unless they contain unique system information.
    - Treat unavailable external file paths as context only; do not claim to read them.
 4. Identify the central processor/controller, power/clock blocks, high-speed interfaces, sensors, memories, connectivity modules, audio, motors, LEDs, buttons, debug ports, and other peripherals.
-5. Generate an editable SVG as the primary artifact. Export PNG when a browser or image tool is available.
+5. Generate an editable `.drawio` file as the primary artifact. Use native draw.io shapes/connectors/text for modules, ports, signal lines, and labels; do not embed the diagram as a raster image. Export matching SVG/PNG previews when a browser or image tool is available.
 6. Preserve history. For iterative edits, create the next suffix (`_v2`, `_v3`, etc.) instead of overwriting previous versions unless the user explicitly asks.
 7. Validate the SVG XML, export the PNG, and visually inspect the result before finishing.
 
@@ -27,7 +27,8 @@ Create editable SVG system block diagrams, usually with an exported PNG, from av
 - Match schematic-style block diagrams: black background, white border, centered main SoC, yellow peripheral blocks, blue high-speed buses, white control/clock/GPIO lines, cyan PWM/control lines, purple audio lines, red power rails.
 - Use English labels for chip/interface names unless the source design uses Chinese labels that must be preserved.
 - Include a title, concise source note, and useful legend. Do not add decorative top-right subtitles, right-bottom title tables, or center-bottom explanatory notes unless the user requests them.
-- Keep SVG text as text, not rasterized paths.
+- Keep `.drawio` content editable: modules are vertices, routes are edges/connectors, signal names are editable text/edge labels, and decorative icons remain separate editable objects where practical.
+- Keep SVG preview text as text, not rasterized paths.
 - Do not invent uncertain nets. If the source table marks assignments blank or unreliable, omit them or annotate uncertainty.
 
 ## Layout Rules
@@ -46,6 +47,7 @@ Create editable SVG system block diagrams, usually with an exported PNG, from av
 ## Routing Rules
 
 - Ensure lines do not pass through functional blocks unless the connection terminates at that block edge.
+- Do not use diagonal signal or connector segments. Route all nets with horizontal/vertical orthogonal segments only; replace any slanted line with a right-angle route.
 - Arrowheads must not overlap labels, module borders, other lines, or nearby arrowheads.
 - Keep arrowheads away from bends. If a line bends into a target, leave a visible straight segment before the arrowhead.
 - Avoid placing arrowheads immediately adjacent to unrelated lines; shift the bend or target approach when necessary.
@@ -61,21 +63,46 @@ Create editable SVG system block diagrams, usually with an exported PNG, from av
 - For long right-side labels, align them so the text ends before the arrowhead and leaves a visible gap.
 - Use a thin black stroke behind white/blue/red labels on black backgrounds to preserve readability and create a small visual clearance from crossing lines.
 
+## Draw.io Empty Diagram Prevention
+
+- Generate valid draw.io XML, not just generic XML. Required structure:
+  - `<mxfile>`
+  - `<diagram>`
+  - `<mxGraphModel>`
+  - `<root>`
+  - `<mxCell id="0"/>`
+  - `<mxCell id="1" parent="0"/>`
+- Attach every visible object to `parent="1"` or to a valid visible group parent.
+- Ensure the file is not an empty shell. A usable block diagram must contain multiple visible `vertex="1"` cells and multiple `edge="1"` connector cells.
+- Do not create the output file before the graph content is ready unless the write is atomic. Avoid leaving a zero-byte, half-written, or outer-wrapper-only `.drawio` file after a generation failure.
+- Keep object coordinates within the draw.io page bounds. If `pageWidth`/`pageHeight` are set, verify major modules have non-negative coordinates and fit within the visible page.
+- Avoid compressed `<diagram>` payloads unless the deflate/base64/urlencode pipeline is tested. Prefer uncompressed `<mxGraphModel>` XML because it is easier to inspect and repair.
+- When validating uncompressed `.drawio` files, inspect `<mxGraphModel>` as a child/descendant of `<diagram>` instead of assuming all diagram content is stored in `diagram.text`. Otherwise a valid editable diagram can be falsely reported as having zero cells.
+- Do not use a single embedded image as the primary diagram. If a preview image is included, it must not replace editable module and connector cells.
+- Ensure visible styles are actually visible on the chosen background. Avoid zero width/height objects and combinations such as `fillColor=none;strokeColor=none` for required objects.
+- Common causes of apparently empty draw.io files are missing root cells, cells without a valid parent, all shapes placed outside the page, failed compressed payload encoding, image references that cannot load, invisible styles, or generation scripts that left only an XML wrapper after an error.
+
 ## Versioning And Output
 
-- Name the first generated diagram with a descriptive project prefix, for example `系统框图/<project>_系统框图.svg`.
+- Name the first generated diagram with a descriptive project prefix, for example `系统框图/<project>_系统框图.drawio`.
 - For revisions, append `_v2`, `_v3`, etc. Do not overwrite unless requested.
-- Export matching PNG names beside the SVG.
+- Export matching SVG/PNG preview names beside the `.drawio` file when tools are available.
+- Optionally keep a structured JSON source beside the diagram when it helps regenerate or revise the `.drawio` deterministically.
 - When using Chrome/Edge headless on Windows paths, encode PowerShell commands if Chinese paths or spaces make quoting unreliable.
-- If export tools are unavailable, still provide the SVG and state that PNG export was not possible.
+- If export tools are unavailable, still provide the `.drawio` file and state which preview exports were not possible.
 
 ## Validation Checklist
 
 Before final response:
 
-- Parse the SVG XML successfully.
-- Export PNG at the intended canvas size.
-- Visually inspect the PNG for:
+- Parse the `.drawio` XML successfully and confirm it contains editable `mxCell` vertices and edges rather than a single embedded image.
+- Confirm the `.drawio` has `mxGraphModel/root`, `mxCell id="0"`, and `mxCell id="1" parent="0"`.
+- For uncompressed `.drawio`, count cells from `.//mxGraphModel`; for compressed payloads, decode first and only then count cells.
+- Count visible objects. Require `vertex` count > 0 and `edge` count > 0 for any non-trivial system block diagram; report the counts when validating a new draw.io output.
+- Confirm major object coordinates are inside the page bounds and required objects have non-zero width/height.
+- Confirm the file size is plausible for the diagram and is not zero-byte or outer-wrapper-only.
+- Export SVG/PNG previews at the intended canvas size when tools are available.
+- Visually inspect the preview for:
   - no line-through-block artifacts
   - no label overlap with horizontal or vertical wire segments
   - no label overlap with arrowheads
@@ -83,4 +110,4 @@ Before final response:
   - bridge/jump marks at unrelated crossings
   - adequate spacing between network names and module boxes
   - title block/version matching the output suffix
-- Report the exact new SVG and PNG file paths and mention the canvas size.
+- Report the exact new `.drawio` path plus any SVG/PNG preview paths and mention the canvas size.

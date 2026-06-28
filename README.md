@@ -5,7 +5,7 @@
 ## Skills
 
 - `system-block-diagram`：原理图风格系统框图绘制与迭代修改 skill。
-  - 当前版本：`v0.1.0`
+  - 当前版本：`v0.1.1`
   - 路径：`skills/system-block-diagram/`
 - `orcad-schematic-check`：OrCAD/Capture DSN 原理图检查与安全批量维护 skill。
   - 路径：`skills/orcad-schematic-check/`
@@ -21,7 +21,7 @@
 然后在请求中使用：
 
 ```text
-Use $system-block-diagram to draw a system block diagram from the current design files.
+Use $system-block-diagram to draw an editable draw.io system block diagram from the current design files.
 ```
 
 ```text

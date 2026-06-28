@@ -2,7 +2,7 @@
 
 位置：`/home/toma/.codex/skills/system-block-diagram`
 
-这个 skill 用于根据项目设计资料绘制或修改原理图风格的系统框图。可参考的资料包括原理图、DSN/BRD 路径说明、IO 分配表、BOM、器件规格书、已有框图截图和历史版本图纸。
+这个 skill 用于根据项目设计资料绘制或修改原理图风格的系统框图。默认主输出为可人工编辑的 `.drawio` 文件，并可按工具条件配套导出 SVG/PNG 预览。可参考的资料包括原理图、DSN/BRD 路径说明、IO 分配表、BOM、器件规格书、已有框图截图和历史版本图纸。
 
 ## 使用方法
 
@@ -12,7 +12,7 @@
 Use $system-block-diagram to draw a system block diagram from the current design files.
 ```
 
-如果是修改已有框图，直接说明要改的位置或规则。该 skill 默认会生成下一个版本号的 SVG/PNG，不覆盖旧版本。
+如果是修改已有框图，直接说明要改的位置或规则。该 skill 默认会生成下一个版本号的 `.drawio`，并尽量生成同名 SVG/PNG 预览，不覆盖旧版本。
 
 ## 手动设计规则
 
